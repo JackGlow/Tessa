@@ -1,0 +1,17 @@
+print:You woke up.{!nl}You are in unregular place.
+sleep:2.5
+say:0:Hi!
+question:variable:Are you ok?
+askinput:myname:What is your name?
+sayvar:0:variable:You are {0}...
+sayvar:0:myname:Hi, {0}!
+sleep:1.25
+say:0:So...You are in simplest engine ever..?
+say:1:Tessa! Come here, I need your help!
+if:variable
+say:0:Hey! You are seems very...sport? Can you help my mom too?
+else:
+say:0:Ok, ok! I'm comming! Wait here, please, ok?
+ifend
+print:The end.
+damage:100
