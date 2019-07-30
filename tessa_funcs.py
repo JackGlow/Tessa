@@ -124,6 +124,9 @@ for l in gameplay:
 	elif(gv[0] == "if"):
 		if(tessa.GetIVar(gv[1]) != True):
 			inIfSkippage = True
+	elif(gv[0] == "comparestr"):
+		if(tessa.GetIVar(gv[1]) != gv[2]):
+			inIfSkippage = True
 	elif(gv[0] == "ifend"):
 		pass
 	elif(gv[0] == "else"):
