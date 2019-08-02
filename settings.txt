@@ -1,8 +1,3 @@
-gamename:Tessa
+gamename:Unknown Game
 gamever:1.0.0
-creator:lmnyx
-url:github.com/jackglow
-debug:true
-engine:Tessa
-goodbye:Thanks for playing Tessa!
-you:canputhereanysetting_you_want
+creator:Unknown Creator

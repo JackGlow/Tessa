@@ -1,7 +1,10 @@
 import os,time,sys
 from colorama import init, Fore, Back, Style
+import requests
+import random
+import names
 init(autoreset=True)
-# Initializing everything from TessaEZEngine (LOL UNFINAL NAME)
+
 print(Fore.CYAN + "Currently loading all variables and functions.")
 
 class Technical(object):
@@ -56,6 +59,32 @@ def cls():
 print(Fore.GREEN + "Loading characters from characters.txt")
 tessa = Tessa()
 # Character Registering
+if not (os.path.isfile("motd.txt")):
+    with open("motd.txt","w") as mt: mt.write("")
+if not (os.path.isfile('settings.txt')):
+    print(Fore.CYAN + "Settings is missing. Creating default.")
+    with open('settings.txt', 'w') as st:
+        st.write('gamename:Unknown Game\ngamever:1.0.0\ncreator:Unknown Creator')
+if not (os.path.isfile('gameplay.txt')):
+    print(Fore.CYAN + "Gameplay is missing. Creation impossible. Abandonning.")
+    exit(-1)
+if not (os.path.isfile('characters.txt')):
+    print(Fore.CYAN + "Characters are missing. Trying to recreate...")
+    print("Viewing into gameplay...")
+    charcount = 0
+    gameplay = open("gameplay.txt","r")
+    for l in gameplay:
+        l = l.replace("\n", "")
+        l = l.split(":")
+        if(l[0] == "say" or l[0] == "sayvar"): # both of them have charid on l[1]
+            if(int(l[1]) > charcount):
+                charcount = int(l[1])
+                print("Already found "+str(charcount)+" characters.")
+    tempv = ""
+    for i in range(charcount):
+        tempv = tempv+names.get_first_name()+","+random.choice(list(tech.colors))+"\n"
+    with open("characters.txt","w") as ch:
+        ch.write(tempv)
 chars = open('characters.txt', 'r')
 for l in chars:
 	l = l.replace('\n', '')
@@ -63,6 +92,7 @@ for l in chars:
 	tessa.RegisterChar(Character(chardata[0], tech.colors[chardata[1]]))
 	print("Character " + tech.colors[chardata[1]] + chardata[0] + Fore.RESET + " was registered.")
 # Settings reading
+
 gamesettings = open('settings.txt', 'r')
 for l in gamesettings:
 	l = l.replace('\n', '')
@@ -70,12 +100,21 @@ for l in gamesettings:
 	GameSettings[gs[0]] = gs[1]
 	print(Fore.CYAN + gs[0] +Fore.RESET+' is '+Fore.CYAN+gs[1])
 	print('GameSettings['+gs[0]+'] = '+GameSettings[gs[0]])
-if(GameSettings['engine'] != "Tessa"):
-	print(Fore.RED + "Engine violation. ("+GameSettings['engine']+" != Tessa)")
-	exit(1)
+
+try:
+    GameSettings['pastebinplay']
+except KeyError:
+    usePastebinGameplay = False
+else:
+    usePastebinGameplay = True
 
 def isDebug():
-	return GameSettings['debug']
+    try:
+        GameSettings['debug']
+    except KeyError:
+        return false
+    else:
+        return GameSettings['debug']
 
 #OK
 print(Fore.CYAN + ("Loading complete.\n"))
@@ -87,6 +126,10 @@ for l in motd:
 time.sleep(2)
 cls()
 # Gameplay
+if(usePastebinGameplay):
+    gameplay = requests.get("https://pastebin.com/raw/"+GameSettings['pastebinplay']);
+    with open('gameplay.txt','wb') as f:
+        f.write(gameplay.content)
 gameplay = open('gameplay.txt', 'r')
 ln = 0
 inIfSkippage = False
@@ -138,5 +181,4 @@ for l in gameplay:
 		if isDebug():
 			print(Fore.CYAN + "[TESSA]: " + Fore.RED + "UNKNOWN TYPE OF ACTION. (GAMEPLAY.TXT/"+str(ln)+")")
 
-cls()
-print(Fore.CYAN + GameSettings['goodbye'])
+print("    -- The End. --   ")
