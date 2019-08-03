@@ -26,7 +26,7 @@ class Tessa(object):
 		self.health = 100
 		self.characters = []
 		self.ivars = {}
-        self.inventory = {}
+		self.inventory = []
 		print(Fore.CYAN + "Tessa(__init__) class initialized!")
 		pass
 	def DamageSelf(self,intdamage):
@@ -56,6 +56,18 @@ class Tessa(object):
 		return
 	def GetIVar(self,var):
 		return self.ivars.get(var)
+	def CleanupSaves(self):
+		for f in os.listdir("saves"):
+			os.unlink("saves/"+f)
+	def AddInventory(self, item):
+		self.inventory.append(item)
+	def HasItem(self,item):
+		if item in self.inventory:
+			return True
+		else:
+			return False
+	def TakeItem(self, item):
+		self.inventory.remove(item)
 
 class Character(object):
 	def __init__(self, name, color):
@@ -223,6 +235,7 @@ def GPStart(gp,dln):
         ln += 1
         l = l.replace('\n', '')
         gv = l.split(':')
+        gva = l.split(':',1)
         if(inIfSkippage):
             if(gv[0] == "ifend"):
                 inIfSkippage = False
@@ -245,6 +258,13 @@ def GPStart(gp,dln):
             tessa.SetIVar(gv[1], str(input()))
         elif(gv[0] == "if"):
             if(tessa.GetIVar(gv[1]) != True):
+                inIfSkippage = True
+        elif(gv[0] == "give_item"):
+            tessa.AddInventory(gv[1])
+        elif(gv[0] == "take_item"):
+            tessa.TakeItem(gv[1])
+        elif(gv[0] == "has_item"):
+            if(tessa.HasItem(gv[1]) != True):
                 inIfSkippage = True
         elif(gv[0] == "comparestr"):
             if(tessa.GetIVar(gv[1]) != gv[2]):
@@ -271,6 +291,8 @@ def GPStart(gp,dln):
             winsound.Beep(int(gv[1]), int(gv[2]))
         elif(gv[0] == "sound"): # ONLY WAV
             winsound.PlaySound(gv[1], winsound.SND_FILENAME)
+        elif(gv[0] == "py"):
+            exec(gva[1])
         elif(gv[0] == "tsound"):
             if(gv[1] == "excl"):
                 winsound.PlaySound('SystemExclamation', winsound.SND_ALIAS)
@@ -284,16 +306,28 @@ if(os.path.isdir("saves") and len(os.listdir("saves")) > 0):
     print(Fore.CYAN+"You have "+str(len(os.listdir("saves"))) + " saves available!")
     print(Fore.CYAN+"Choose one to continue or type '0' to start a new one!")
     savel = 1
+    savelist = []
     for f in os.listdir('saves'):
-        svf = configparser.ConfigParser()
-        svf.read("saves/"+f)
-        print("["+str(savel)+"] "+datetime.utcfromtimestamp(int(round(float(svf['DefaultSave']['SaveDate'])))).strftime('%Y-%m-%d %H:%M:%S'))
-        savel += 1
+        try:
+            svf = configparser.ConfigParser()
+            svf.read("saves/"+f)
+            print("["+str(savel)+"] "+datetime.utcfromtimestamp(int(round(float(svf['DefaultSave']['SaveDate'])))).strftime('%Y-%m-%d %H:%M:%S'))
+            savelist.append(f)
+            savel += 1
+        except KeyError:
+            print(Fore.RED + "Some of your save files are corrupted.")
+            exit(0)
     print("Enter: ", end='')
     saveloadid = input()
+    svf = configparser.ConfigParser()
+    svf.read("saves/"+savelist[int(saveloadid)])
     if not(saveloadid == "0"):
         print(Fore.GREEN+"Loading...")
         slo = int(svf['DefaultSave']['ResumeLine'])
+        tessa.ivars = {}
+        for iv in svf['IVars']:
+            tessa.ivars[iv] = svf['IVars'][iv]
+        cls()
 
 try:
     GPStart(gameplay,slo)
