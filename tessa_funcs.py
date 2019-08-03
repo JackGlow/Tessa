@@ -1,12 +1,14 @@
-import os,time,sys,requests,random,names,json,winsound,argparse
+import os,time,sys,requests,random,names,json,winsound,argparse,configparser
 from colorama import init, Fore, Back, Style
 from tkinter import *
 from tkinter import messagebox
 from tkinter.scrolledtext import ScrolledText
 from tkinter import simpledialog
+from datetime import datetime
 init(autoreset=True)
 parser = argparse.ArgumentParser()
 parser.add_argument("-e", "--editor", action = "store_true", help="Activates editor mode.")
+parser.add_argument("-d", "--debug", action = "store_true", help="Activates debug mode.")
 args = parser.parse_args()
 print(Fore.CYAN + "Currently loading all variables and functions.")
 
@@ -24,9 +26,13 @@ class Tessa(object):
 		self.health = 100
 		self.characters = []
 		self.ivars = {}
+        self.inventory = {}
 		print(Fore.CYAN + "Tessa(__init__) class initialized!")
 		pass
 	def DamageSelf(self,intdamage):
+		if(GameSettings['health'] != "1" and isDebug()):
+			print(Fore.RED+"Damage was stopped. Health is disabled.")
+			return
 		winsound.Beep(100,10)
 		self.health -= intdamage
 		return
@@ -104,7 +110,7 @@ if not (os.path.isfile("motd.txt")):
 if not (os.path.isfile('settings.txt')):
     print(Fore.CYAN + "Settings is missing. Creating default.")
     with open('settings.txt', 'w') as st:
-        st.write('gamename:Unknown Game\ngamever:1.0.0\ncreator:Unknown Creator')
+        st.write('gamename:Unknown Game\ngamever:1.0.0\ncreator:Unknown Creator\nhealth:0\ninventory:0')
 if not (os.path.isfile('gameplay.txt')):
     print(Fore.CYAN + "Gameplay is missing. Creation impossible. Abandonning.")
     exit(-1)
@@ -148,13 +154,21 @@ except KeyError:
 else:
     usePastebinGameplay = True
 
+try:
+    GameSettings['health']
+except KeyError:
+    print(Fore.RED + "You cannot remove 'health' parameter from settings!")
+    exit(-1)
+try:
+    GameSettings['inventory']
+except KeyError:
+    print(Fore.RED + "You cannot remove 'inventory' parameter from settings!")
+    exit(-1)
+
 def isDebug():
-    try:
-        GameSettings['debug']
-    except KeyError:
-        return false
-    else:
-        return GameSettings['debug']
+    global args
+    if args.debug: return True
+    else: return False
 
 #OK
 print(Fore.CYAN + ("Loading complete.\n"))
@@ -165,17 +179,40 @@ for l in motd:
 
 time.sleep(2)
 cls()
+
+def SaveGame(line):
+    global tessa
+    print("Working on savefile.. Saving from line "+str(line))
+    savetime = time.time()
+    if not (os.path.isdir("saves")):
+        os.mkdir("saves")
+    sf = configparser.ConfigParser(allow_no_value=True)
+    sf.add_section("DefaultSave")
+    sf.set("DefaultSave", "ResumeLine", str(line))
+    sf.set("DefaultSave", "SaveDate", str(savetime))
+    sf.add_section("IVars")
+    for ivar in tessa.ivars:
+        sf.set("IVars", ivar, tessa.ivars[ivar])
+    sff = open("saves/save"+str(savetime)+".ini", 'w')
+    sf.write(sff)
+    sff.close()
+
 # Gameplay
 if(usePastebinGameplay):
     gameplay = requests.get("https://pastebin.com/raw/"+GameSettings['pastebinplay']);
     with open('gameplay.txt','wb') as f:
         f.write(gameplay.content)
 gameplay = open('gameplay.txt', 'r')
-
-def GPStart(gp):
-    ln = 0
+ln = 0
+def GPStart(gp,dln):
+    global ln
+    ln = dln
+    rl = 0
     inIfSkippage = False
     for l in gp:
+        rl += 1
+        if(rl+1 < ln):
+            continue
         if(tessa.health < 1):
             print(Fore.RED + "YOU ARE DEAD.")
             input("Press Enter to continue...")
@@ -242,7 +279,26 @@ def GPStart(gp):
         else:
             if isDebug():
                 print(Fore.CYAN + "[TESSA]: " + Fore.RED + "UNKNOWN TYPE OF ACTION. (GAMEPLAY.TXT/"+str(ln)+")")
+slo=0
+if(os.path.isdir("saves") and len(os.listdir("saves")) > 0):
+    print(Fore.CYAN+"You have "+str(len(os.listdir("saves"))) + " saves available!")
+    print(Fore.CYAN+"Choose one to continue or type '0' to start a new one!")
+    savel = 1
+    for f in os.listdir('saves'):
+        svf = configparser.ConfigParser()
+        svf.read("saves/"+f)
+        print("["+str(savel)+"] "+datetime.utcfromtimestamp(int(round(float(svf['DefaultSave']['SaveDate'])))).strftime('%Y-%m-%d %H:%M:%S'))
+        savel += 1
+    print("Enter: ", end='')
+    saveloadid = input()
+    if not(saveloadid == "0"):
+        print(Fore.GREEN+"Loading...")
+        slo = int(svf['DefaultSave']['ResumeLine'])
 
-GPStart(gameplay)
+try:
+    GPStart(gameplay,slo)
+except KeyboardInterrupt:
+    print(Fore.CYAN+"Saving the game..")
+    SaveGame(ln)
 
 print("    -- The End. --   ")

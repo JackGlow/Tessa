@@ -1,3 +1,5 @@
 gamename:Unknown Game
 gamever:1.0.0
 creator:Unknown Creator
+health:1
+inventory:1
