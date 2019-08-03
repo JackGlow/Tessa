@@ -6,6 +6,14 @@ If you getting weird messages turn off debug mode in `settings.txt`.
 
 ## Changelog
 
+### 3 Aug 2019 (1.3.0)
+* Added low-freq beep sound on damage.
+* Added `go` action type.
+* Added `goend` action type.
+* Added `sound` action type. *(only WAV)*
+* Added `tsound` action type.
+* Added `beep` action type.
+* Rewritten gameplay.
 ### 1 Aug 2019 (1.2.0)
 * Removed goodbye parameter from settings.
 * Removed engine parameter from settings.
