@@ -1,10 +1,13 @@
-import os,time,sys
+import os,time,sys,requests,random,names,json,winsound,argparse
 from colorama import init, Fore, Back, Style
-import requests
-import random
-import names
+from tkinter import *
+from tkinter import messagebox
+from tkinter.scrolledtext import ScrolledText
+from tkinter import simpledialog
 init(autoreset=True)
-
+parser = argparse.ArgumentParser()
+parser.add_argument("-e", "--editor", action = "store_true", help="Activates editor mode.")
+args = parser.parse_args()
 print(Fore.CYAN + "Currently loading all variables and functions.")
 
 class Technical(object):
@@ -24,6 +27,7 @@ class Tessa(object):
 		print(Fore.CYAN + "Tessa(__init__) class initialized!")
 		pass
 	def DamageSelf(self,intdamage):
+		winsound.Beep(100,10)
 		self.health -= intdamage
 		return
 	def Say(self,character,message):
@@ -58,6 +62,42 @@ def cls():
 
 print(Fore.GREEN + "Loading characters from characters.txt")
 tessa = Tessa()
+print(Fore.CYAN + "Loading of primary functions and variables was finished.")
+def rs():
+    abababab = 0
+def ex():
+    print(Fore.RED + "Bye!")
+    exit(0)
+
+def askInput():
+    print("")
+if(args.editor):
+    print(Fore.GREEN + "Entering editor mode...")
+    m = Tk()
+    m.title("Tessa: Visual Editor (v1.3.0/v1.0.0)")
+    m.minsize(600,300)
+    mb = Menu(m)
+    ts = Menu(mb, tearoff=0)
+    ts.add_command(label = "Reset gameplay",command=rs)
+    ts.add_command(label = "Reset settings",command=rs)
+    ts.add_command(label = "Reset characters",command=rs)
+    ts.add_separator()
+    ts.add_command(label = "Save",command=ex)
+    ts.add_command(label = "Exit",command=ex)
+    mb.add_cascade(label="Tessa", menu=ts)
+    
+    ins = Menu(mb, tearoff=0)
+    mb.add_cascade(label="Insert", menu=ins)
+    m.config(menu=mb)
+    # GUI
+    text = Text(m, state='normal')
+    text.focus_set()
+    text.pack(pady=0,padx=0)
+    print(text.get(1.0, END))
+    messagebox.showwarning("Tessa","This environment isn't completed at all. Use this at own risk.")
+    mainloop()
+    print(Fore.RED + "Bye!")
+    exit(0)
 # Character Registering
 if not (os.path.isfile("motd.txt")):
     with open("motd.txt","w") as mt: mt.write("")
@@ -131,54 +171,78 @@ if(usePastebinGameplay):
     with open('gameplay.txt','wb') as f:
         f.write(gameplay.content)
 gameplay = open('gameplay.txt', 'r')
-ln = 0
-inIfSkippage = False
-for l in gameplay:
-	if(tessa.health < 1):
-		print(Fore.RED + "YOU ARE DEAD.")
-		input("Press Enter to continue...")
-		cls()
-		print(Fore.CYAN + GameSettings['goodbye'])
-		exit(0)
-		continue
-	ln += 1
-	l = l.replace('\n', '')
-	gv = l.split(':')
-	if(inIfSkippage):
-		if(gv[0] == "ifend"):
-			inIfSkippage = False
-		elif(gv[0] == "else"):
-			inIfSkippage = False
-		continue
-	if(gv[0] == "print"):
-		gv[1] = gv[1].replace('{!nl}', '\n')
-		print(gv[1])
-	elif(gv[0] == "say"):
-		tessa.Say(int(gv[1]), gv[2])
-	elif(gv[0] == "sleep"):
-		time.sleep(float(gv[1]))
-	elif(gv[0] == "question"):
-		tessa.SetIVar(gv[1],tessa.GiveChoice(gv[2]))
-	elif(gv[0] == "sayvar"):
-		tessa.Say(int(gv[1]), gv[3].format(str(tessa.GetIVar(gv[2]))))
-	elif(gv[0] == "askinput"):
-		print(gv[2]+": ", end='')
-		tessa.SetIVar(gv[1], str(input()))
-	elif(gv[0] == "if"):
-		if(tessa.GetIVar(gv[1]) != True):
-			inIfSkippage = True
-	elif(gv[0] == "comparestr"):
-		if(tessa.GetIVar(gv[1]) != gv[2]):
-			inIfSkippage = True
-	elif(gv[0] == "ifend"):
-		pass
-	elif(gv[0] == "else"):
-		inIfSkippage = True
-		pass
-	elif(gv[0] == "damage"):
-		tessa.DamageSelf(int(gv[1]))
-	else:
-		if isDebug():
-			print(Fore.CYAN + "[TESSA]: " + Fore.RED + "UNKNOWN TYPE OF ACTION. (GAMEPLAY.TXT/"+str(ln)+")")
+
+def GPStart(gp):
+    ln = 0
+    inIfSkippage = False
+    for l in gp:
+        if(tessa.health < 1):
+            print(Fore.RED + "YOU ARE DEAD.")
+            input("Press Enter to continue...")
+            cls()
+            print(Fore.CYAN + GameSettings['goodbye'])
+            exit(0)
+            continue
+        ln += 1
+        l = l.replace('\n', '')
+        gv = l.split(':')
+        if(inIfSkippage):
+            if(gv[0] == "ifend"):
+                inIfSkippage = False
+            elif(gv[0] == "else"):
+                inIfSkippage = False
+            continue
+        if(gv[0] == "print"):
+            gv[1] = gv[1].replace('{!nl}', '\n')
+            print(gv[1])
+        elif(gv[0] == "say"):
+            tessa.Say(int(gv[1]), gv[2])
+        elif(gv[0] == "sleep"):
+            time.sleep(float(gv[1]))
+        elif(gv[0] == "question"):
+            tessa.SetIVar(gv[1],tessa.GiveChoice(gv[2]))
+        elif(gv[0] == "sayvar"):
+            tessa.Say(int(gv[1]), gv[3].format(str(tessa.GetIVar(gv[2]))))
+        elif(gv[0] == "askinput"):
+            print(gv[2]+": ", end='')
+            tessa.SetIVar(gv[1], str(input()))
+        elif(gv[0] == "if"):
+            if(tessa.GetIVar(gv[1]) != True):
+                inIfSkippage = True
+        elif(gv[0] == "comparestr"):
+            if(tessa.GetIVar(gv[1]) != gv[2]):
+                inIfSkippage = True
+        elif(gv[0] == "ifend"):
+            pass
+        elif(gv[0] == "else"):
+            inIfSkippage = True
+            pass
+        elif(gv[0] == "damage"):
+            tessa.DamageSelf(int(gv[1]))
+        # 1.3.0
+        elif(gv[0] == "go"):
+            if(os.path.isfile(gv[1])):
+                GPStart(open(gv[1],'r'))
+        elif(gv[0] == "goend"):
+            if(os.path.isfile(gv[1])):
+                GPStart(open(gv[1],'r'))
+                print("    -- The End. --   ")
+                exit(0)
+        elif(gv[0] == "setvar"):
+            tessa.SetIVar(gv[1], gv[2])
+        elif(gv[0] == "beep"):
+            winsound.Beep(int(gv[1]), int(gv[2]))
+        elif(gv[0] == "sound"): # ONLY WAV
+            winsound.PlaySound(gv[1], winsound.SND_FILENAME)
+        elif(gv[0] == "tsound"):
+            if(gv[1] == "excl"):
+                winsound.PlaySound('SystemExclamation', winsound.SND_ALIAS)
+            elif(gv[1] == "ast"):
+                winsound.PlaySound('SystemAsterisk', winsound.SND_ALIAS)
+        else:
+            if isDebug():
+                print(Fore.CYAN + "[TESSA]: " + Fore.RED + "UNKNOWN TYPE OF ACTION. (GAMEPLAY.TXT/"+str(ln)+")")
+
+GPStart(gameplay)
 
 print("    -- The End. --   ")
