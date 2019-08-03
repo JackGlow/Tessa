@@ -6,12 +6,13 @@ If you getting weird messages turn off debug mode in `settings.txt`.
 
 ## Changelog
 
-### 3 Aug 2019 (1.4.0pre1)
+### 4 Aug 2019 (1.4.0)
 * Added experimental visual editor (prototype), activates on `tessa.py -e`
 * Added experimental saving system. (CTRL+C)
 * Added experimental inventory system.
 * Added `health` and `inventory` to settings. This systems now may be disabled.
 * Debug was removed from settings and now debugmode activates on `-d` or `--debug` argument.
+* Added `py` action type. So you can do some Doki Doki stuff. *( maybe call tessa.CleanupSaves() )*
 ### 3 Aug 2019 (1.3.0)
 * Added low-freq beep sound on damage.
 * Added `go` action type.
