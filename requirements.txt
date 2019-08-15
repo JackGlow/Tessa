@@ -2,3 +2,5 @@ names
 colorama
 argparse
 tk
+requests
+pyinstaller

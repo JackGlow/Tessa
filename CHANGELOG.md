@@ -1,3 +1,10 @@
+### ??? 2019 (1.5)
+* Added `echar` action type.
+* Visual editor is still useless.
+* Added runtime class.
+* Blocked py from unsecure functions.
+* Build to .exe by -build avaiable.
+* Fixed requirements.txt, which doesn't have requests module.
 ### 4 Aug 2019 (1.4.0)
 * Added experimental visual editor (prototype), activates on `tessa.py -e`
 * Added experimental saving system. (CTRL+C)

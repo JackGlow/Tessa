@@ -1,4 +1,4 @@
-import os,time,sys,requests,random,names,json,winsound,argparse,configparser
+import os,time,sys,requests,random,names,json,winsound,argparse,configparser, string
 from colorama import init, Fore, Back, Style
 from tkinter import *
 from tkinter import messagebox
@@ -9,9 +9,20 @@ init(autoreset=True)
 parser = argparse.ArgumentParser()
 parser.add_argument("-e", "--editor", action = "store_true", help="Activates editor mode.")
 parser.add_argument("-d", "--debug", action = "store_true", help="Activates debug mode.")
+parser.add_argument("-build", "--build", action = "store_true", help="Builds a game into EXE.")
 args = parser.parse_args()
 print(Fore.CYAN + "Currently loading all variables and functions.")
-
+if(args.build):
+    import PyInstaller.__main__
+    PyInstaller.__main__.run([
+        '--name=Tessa',
+        '--onefile',
+        '--add-data=%s' % '*.txt;/',
+        '--icon=%s' % os.path.join('icon.ico'),
+        os.path.join('tessa.py'),
+    ])
+    print('View into ./dist')
+    sys.exit(0)
 class Technical(object):
 	def __init__(self):
 		self.colors = {"black": Fore.BLACK, "red": Fore.RED, "green": Fore.GREEN, "yellow": Fore.YELLOW, "blue": Fore.BLUE, "magenta": Fore.MAGENTA, "cyan": Fore.CYAN, "white": Fore.WHITE}
@@ -75,6 +86,16 @@ class Character(object):
 		self.color = color
 		pass
 
+class Runtime(object):
+    def __init__(self):
+        pass
+    def AddChar(self, name, colorString):
+        tessa.RegisterChar(name , tech.colors[colorString])
+        pass
+        
+
+runtime = Runtime()
+
 def cls():
     os.system('cls' if os.name=='nt' else 'clear')
 
@@ -85,7 +106,7 @@ def rs():
     abababab = 0
 def ex():
     print(Fore.RED + "Bye!")
-    exit(0)
+    sys.exit(0)
 
 def askInput():
     print("")
@@ -115,7 +136,7 @@ if(args.editor):
     messagebox.showwarning("Tessa","This environment isn't completed at all. Use this at own risk.")
     mainloop()
     print(Fore.RED + "Bye!")
-    exit(0)
+    sys.exit(0)
 # Character Registering
 if not (os.path.isfile("motd.txt")):
     with open("motd.txt","w") as mt: mt.write("")
@@ -125,7 +146,7 @@ if not (os.path.isfile('settings.txt')):
         st.write('gamename:Unknown Game\ngamever:1.0.0\ncreator:Unknown Creator\nhealth:0\ninventory:0')
 if not (os.path.isfile('gameplay.txt')):
     print(Fore.CYAN + "Gameplay is missing. Creation impossible. Abandonning.")
-    exit(-1)
+    sys.exit(-1)
 if not (os.path.isfile('characters.txt')):
     print(Fore.CYAN + "Characters are missing. Trying to recreate...")
     print("Viewing into gameplay...")
@@ -170,12 +191,12 @@ try:
     GameSettings['health']
 except KeyError:
     print(Fore.RED + "You cannot remove 'health' parameter from settings!")
-    exit(-1)
+    sys.exit(-1)
 try:
     GameSettings['inventory']
 except KeyError:
     print(Fore.RED + "You cannot remove 'inventory' parameter from settings!")
-    exit(-1)
+    sys.exit(-1)
 
 def isDebug():
     global args
@@ -230,7 +251,7 @@ def GPStart(gp,dln):
             input("Press Enter to continue...")
             cls()
             print(Fore.CYAN + GameSettings['goodbye'])
-            exit(0)
+            sys.exit(0)
             continue
         ln += 1
         l = l.replace('\n', '')
@@ -270,13 +291,12 @@ def GPStart(gp,dln):
             if(tessa.GetIVar(gv[1]) != gv[2]):
                 inIfSkippage = True
         elif(gv[0] == "ifend"):
-            pass
+            continue
         elif(gv[0] == "else"):
             inIfSkippage = True
-            pass
+            continue
         elif(gv[0] == "damage"):
             tessa.DamageSelf(int(gv[1]))
-        # 1.3.0
         elif(gv[0] == "go"):
             if(os.path.isfile(gv[1])):
                 GPStart(open(gv[1],'r'))
@@ -284,20 +304,39 @@ def GPStart(gp,dln):
             if(os.path.isfile(gv[1])):
                 GPStart(open(gv[1],'r'))
                 print("    -- The End. --   ")
-                exit(0)
+                sys.exit(0)
         elif(gv[0] == "setvar"):
             tessa.SetIVar(gv[1], gv[2])
+        elif(gv[0] == "echar"):
+            tessa.characters[int(gv[1])].name = gv[2]
+            tessa.characters[int(gv[1])].color = gv[3]
+        elif(gv[0] == "echvar"):
+            tessa.characters[int(gv[1])].name = tessa.GetIVar(gv[2])
+            tessa.characters[int(gv[1])].color = tech.colors[gv[3]]
         elif(gv[0] == "beep"):
             winsound.Beep(int(gv[1]), int(gv[2]))
         elif(gv[0] == "sound"): # ONLY WAV
             winsound.PlaySound(gv[1], winsound.SND_FILENAME)
         elif(gv[0] == "py"):
+            # SECURITY
+            UnsecureFNs = ['tessa.(.*)', 'tech.(.*)', 'unsecureFN((.*))', 'input((.*))', '']
+            unsecureFound = False
+            for fn in UnsecureFNs:
+                if re.match(fn,gv[1]):
+                    print(Fore.RED + "SECURITY ERROR:"+ Fore.WHITE +" Gameplay contains unsecure function in py methods. ( "+fn+" )")
+                    unsecureFound = True
+                    continue
+            if(unsecureFound):
+                continue
+            # PASS
             exec(gva[1])
         elif(gv[0] == "tsound"):
             if(gv[1] == "excl"):
                 winsound.PlaySound('SystemExclamation', winsound.SND_ALIAS)
             elif(gv[1] == "ast"):
                 winsound.PlaySound('SystemAsterisk', winsound.SND_ALIAS)
+        elif(gv[0] == "easter"):
+            print("ok. hi.")
         else:
             if isDebug():
                 print(Fore.CYAN + "[TESSA]: " + Fore.RED + "UNKNOWN TYPE OF ACTION. (GAMEPLAY.TXT/"+str(ln)+")")
@@ -316,7 +355,7 @@ if(os.path.isdir("saves") and len(os.listdir("saves")) > 0):
             savel += 1
         except KeyError:
             print(Fore.RED + "Some of your save files are corrupted.")
-            exit(0)
+            sys.exit(0)
     print("Enter: ", end='')
     saveloadid = input()
     svf = configparser.ConfigParser()

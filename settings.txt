@@ -1,5 +1,5 @@
-gamename:Unknown Game
+gamename:NIKITAS ADVENTURE IN BIZZARE WORLD OF GAMEDEV
 gamever:1.0.0
-creator:Unknown Creator
+creator:lmnyx
 health:1
 inventory:1

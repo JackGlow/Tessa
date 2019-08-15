@@ -1,2 +1,2 @@
-Tessa,cyan
-Mom,magenta
+Вы,cyan
+Мама,magenta
