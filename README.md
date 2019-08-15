@@ -7,6 +7,9 @@ If you getting weird messages turn off debug mode in `settings.txt`.
 ## Stable release
 You can get Stable release at [Releases page](https://github.com/lmnyx/Tessa/releases).
 
+## Tessa.NET
+Tessa.NET - is a code name of planned port of Tessa to C#.
+
 ## Changelog
 
 ### 4 Aug 2019 (1.4.0)
