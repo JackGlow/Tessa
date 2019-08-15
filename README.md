@@ -4,6 +4,9 @@ Simplest console based game engine
 Visit [Wiki](https://github.com/JackGlow/Tessa/wiki) for more information.
 If you getting weird messages turn off debug mode in `settings.txt`.
 
+## Stable release
+You can get Stable release at [Releases page](https://github.com/lmnyx/Tessa/releases).
+
 ## Changelog
 
 ### 4 Aug 2019 (1.4.0)
