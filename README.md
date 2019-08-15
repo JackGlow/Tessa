@@ -10,6 +10,8 @@ You can get Stable release at [Releases page](https://github.com/lmnyx/Tessa/rel
 ## Tessa.NET
 Tessa.NET - is a code name of planned port of Tessa to C#.
 
+More info available at [GitHub page](https://github.com/lmnyx/Tessa.NET)
+
 ## Changelog
 
 ### 4 Aug 2019 (1.4.0)
